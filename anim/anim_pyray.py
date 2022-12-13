@@ -1,11 +1,12 @@
 from pyray import *
 import numpy as np
-from anim import Anim
+
+from .anim import Anim
 
 
 def draw_anim(root: Vector3, anim: Anim, frame: int):
-    gpos = anim.fk()[1] + np.asarray([root.x, root.y, root.z])
-    parents = anim.parents
+    gpos = anim.global_positions + np.asarray([root.x, root.y, root.z])
+    parents = anim.skeleton.parents
 
     nframes = gpos.shape[0]
     nbones = gpos.shape[1]

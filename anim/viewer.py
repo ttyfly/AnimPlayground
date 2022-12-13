@@ -1,15 +1,28 @@
+from typing import List, Tuple
+
 from pyray import *
 import cffi
 import numpy as np
 
-from anim import Anim
-from anim_pyray import draw_anim
-from raygui_tool import HLayout, gui_curve_1d
-import quat
+from . import quat
+from .anim import Anim
+from .anim_pyray import draw_anim
+from .raygui_tool import HLayout, gui_curve_1d
+
+
+# https://electronstudio.github.io/raylib-python-cffi/
 
 
 class Viewer(object):
-    def __init__(self, width, height) -> None:
+
+    width: int
+    height: int
+    title: str
+    animations: List[Tuple[np.ndarray, Anim]]
+    curves: List[Tuple[np.ndarray, float, float, int]]
+    frame_tags: List[int]
+
+    def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
         self.title = 'Viewer'
@@ -21,7 +34,13 @@ class Viewer(object):
         assert position.shape == (3,)
         self.animations.append((position, anim))
 
-    def add_curve(self, curve: np.ndarray, min_value, max_value, start_frame=0):
+    def add_curve(
+        self,
+        curve: np.ndarray,
+        min_value: float,
+        max_value: float,
+        start_frame: int = 0
+    ):
         assert curve.ndim == 1
         self.curves.append((curve, min_value, max_value, start_frame))
 
@@ -89,7 +108,7 @@ class Viewer(object):
             """ Camera """
 
             position, target_anim = self.animations[camera_target]
-            gpos = target_anim.fk()[1] + position
+            gpos = target_anim.global_positions + position
             ii = min(i, gpos.shape[0] - 1)
 
             if camera_active == 0:
